@@ -1,203 +1,30 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>开心</title>
-  <style>
-    :root {
-      --ink: #f4f7ed;
-      --muted: #9ca698;
-      --line: rgba(244, 247, 237, 0.13);
-      --panel: rgba(17, 25, 22, 0.78);
-      --lime: #f5d76e;
-      --mint: #66e0a3;
-      --coral: #ff8167;
-      --night: #17100d;
-    }
-
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      color: var(--ink);
-      background: var(--night);
-      font-family: 'Trebuchet MS', sans-serif;
-      overflow-x: hidden;
-    }
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: .55;
-      background:
-        linear-gradient(120deg, rgba(245, 215, 110, .08), transparent 38%),
-        radial-gradient(circle at 82% 15%, rgba(102, 224, 163, .12), transparent 25%),
-        repeating-linear-gradient(0deg, transparent 0 3px, rgba(255,255,255,.012) 4px);
-    }
-    .shell {
-      width: min(1120px, calc(100% - 40px));
-      margin: 0 auto;
-      padding: 34px 0 44px;
-      position: relative;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 24px;
-      margin-bottom: 26px;
-    }
-    .eyebrow {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      color: var(--lime);
-      font: 500 11px/1 'Courier New', monospace;
-      letter-spacing: .14em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-    .eyebrow::before { content: ''; width: 28px; height: 2px; background: var(--lime); }
-    h1 { margin: 0; color: var(--lime); font-size: clamp(1.6rem, 4vw, 2.5rem); line-height: 1; letter-spacing: -.05em; font-weight: 600; }
-    .tagline { max-width: 220px; color: var(--muted); font-size: 14px; line-height: 1.45; text-align: right; margin: 0 0 3px; }
-    .game-layout { display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 18px; align-items: start; }
-    .stage { padding: 14px; background: var(--panel); border: 1px solid var(--line); box-shadow: 0 20px 70px rgba(0,0,0,.26); }
-    .stage-top { display: flex; justify-content: space-between; align-items: center; padding: 2px 3px 13px; color: var(--muted); font: 11px 'Courier New', monospace; letter-spacing: .06em; text-transform: uppercase; }
-    .status { display: flex; align-items: center; gap: 7px; }
-    .status::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 12px var(--lime); }
-    .status.paused::before { background: var(--coral); box-shadow: 0 0 12px var(--coral); }
-    .canvas-wrap { position: relative; width: 100%; aspect-ratio: 1; background: #101a16; overflow: hidden; }
-    canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
-    .overlay { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(7, 12, 11, .68); text-align: center; transition: opacity .2s; }
-    .overlay.hidden { opacity: 0; pointer-events: none; }
-    .overlay-box { max-width: 310px; }
-    .overlay h2 { margin: 0 0 9px; font-size: 28px; letter-spacing: -.05em; }
-    .overlay p { margin: 0 0 20px; color: var(--muted); font-size: 13px; line-height: 1.5; }
-    button { border: 0; color: #101510; background: var(--lime); font: 600 13px 'Trebuchet MS', sans-serif; cursor: pointer; transition: transform .15s, filter .15s; }
-    button:hover { filter: brightness(1.08); transform: translateY(-2px); }
-    button:active { transform: translateY(0); }
-    .primary { padding: 12px 20px; }
-    .side { display: grid; gap: 18px; }
-    .panel { border-top: 1px solid var(--line); padding-top: 15px; }
-    .panel-label { color: var(--muted); font: 11px 'Courier New', monospace; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 10px; }
-    .score-row { display: flex; align-items: end; justify-content: space-between; }
-    .score { color: var(--lime); font: 500 clamp(2.4rem, 6vw, 3.7rem)/.9 'Courier New', monospace; letter-spacing: -.12em; }
-    .best { color: var(--muted); font: 12px 'Courier New', monospace; }
-    .best strong { display: block; color: var(--ink); font-size: 19px; margin-top: 3px; font-weight: 400; }
-    .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-    .fact { padding: 12px; background: rgba(255,255,255,.035); border: 1px solid var(--line); }
-    .fact strong { display: block; color: var(--mint); font: 500 18px 'Courier New', monospace; margin-top: 5px; }
-    .actions { display: flex; gap: 9px; }
-    .action { flex: 1; min-height: 40px; color: var(--ink); background: transparent; border: 1px solid var(--line); }
-    .action:hover { border-color: var(--lime); }
-    .controls { color: var(--muted); font-size: 13px; line-height: 1.8; }
-    kbd { display: inline-grid; place-items: center; min-width: 25px; height: 23px; margin-right: 4px; border: 1px solid var(--line); color: var(--ink); font: 11px 'Courier New', monospace; }
-    .touch-controls { display: none; grid-template-columns: repeat(3, 44px); justify-content: center; gap: 7px; margin-top: 14px; }
-    .touch-controls button { width: 44px; height: 38px; font-size: 18px; }
-    .touch-controls button:nth-child(1) { grid-column: 2; }
-    .touch-controls button:nth-child(2) { grid-column: 1; grid-row: 2; }
-    .touch-controls button:nth-child(3) { grid-column: 2; grid-row: 2; }
-    .touch-controls button:nth-child(4) { grid-column: 3; grid-row: 2; }
-    @media (max-width: 760px) {
-      .shell { width: min(100% - 24px, 540px); padding-top: 24px; }
-      header { align-items: start; margin-bottom: 20px; }
-      .tagline { display: none; }
-      .game-layout { display: block; }
-      .side { grid-template-columns: 1fr 1fr; margin-top: 18px; gap: 20px 14px; }
-      .side .panel:first-child, .side .panel:last-child { grid-column: 1 / -1; }
-      .touch-controls { display: grid; }
-      .stage { padding: 10px; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#11151b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>方块星球</title>
+<style>
+:root{--ink:#f4f0e8;--muted:#89919b;--dim:#4f5964;--panel:#1a2027;--panel-light:#202731;--line:rgba(255,255,255,.08);--accent:#e7ff57;--coral:#ff765e;--shadow:rgba(0,0,0,.28)}
+*{box-sizing:border-box}html,body{margin:0;width:100%;min-height:100%;overflow:hidden}body{background:#11151b;color:var(--ink);font-family:'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none}button{font:inherit;color:inherit;border:0;cursor:pointer;touch-action:manipulation}
+.game-shell{min-height:100svh;height:100svh;padding:max(22px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));display:flex;flex-direction:column;background:radial-gradient(circle at 50% -10%,#29333b 0,#171d24 34%,#11151b 74%);overflow:hidden}.topbar{display:flex;justify-content:space-between;align-items:center;max-width:920px;width:100%;margin:0 auto}.brand-mark{display:flex;gap:11px;align-items:center}.brand-icon{width:31px;height:31px;display:grid;grid-template-columns:repeat(2,1fr);gap:3px;transform:rotate(-7deg)}.brand-icon i{background:var(--accent);display:block;box-shadow:2px 2px 0 #707c18}.brand-icon i:nth-child(2){opacity:.68}.brand-icon i:nth-child(3){opacity:.85}.brand-icon i:nth-child(4){opacity:.42}.eyebrow,h1{margin:0}.eyebrow{color:var(--accent);font:700 10px/1 'Barlow Condensed',sans-serif;letter-spacing:2.4px}.brand-mark h1{margin-top:3px;font-size:18px;line-height:1;letter-spacing:1px}.icon-button{width:40px;height:40px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.045);display:grid;place-items:center;transition:background .2s,transform .2s}.icon-button:active{transform:scale(.94);background:rgba(255,255,255,.11)}.pause-bars{width:12px;height:15px;border-left:4px solid var(--muted);border-right:4px solid var(--muted)}
+.game-layout{width:100%;max-width:920px;margin:auto;display:flex;justify-content:center;align-items:center;gap:clamp(16px,4vw,46px)}.stats-panel{display:flex;flex-direction:column;gap:14px;width:140px}.stat-card{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:16px;box-shadow:0 12px 25px var(--shadow)}.stat-label{display:block;color:var(--muted);font-size:11px;letter-spacing:1.5px;font-weight:700}.score-card strong{display:block;margin:7px 0 11px;color:var(--accent);font:700 29px/1 'Barlow Condensed',sans-serif;letter-spacing:1px}.score-rule{height:2px;background:#303a43}.score-rule span{display:block;width:62%;height:100%;background:var(--coral)}.mini-stats{display:flex;justify-content:space-between;margin-top:14px}.mini-stats div{display:flex;flex-direction:column;gap:3px}.mini-stats span{color:var(--muted);font-size:10px}.mini-stats b{font:700 18px/1 'Barlow Condensed',sans-serif}.next-card{padding-bottom:13px}.next-board{height:75px;margin-top:10px;display:grid;place-items:center;background:#14191e;border-radius:3px}
+.board-wrap{display:flex;flex-direction:column;align-items:center}.board-frame{position:relative;width:min(47vw,300px);aspect-ratio:1/2;border:4px solid #37424a;border-radius:5px;background:#0d1115;box-shadow:0 18px 45px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.04)}.board-frame canvas{display:block;width:100%;height:100%;image-rendering:pixelated}.game-message{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(12,16,20,.88);text-align:center}.game-message[hidden]{display:none}.message-kicker{color:var(--coral);font:600 10px/1 'Barlow Condensed',sans-serif;letter-spacing:2px}.game-message strong{font-size:23px}.primary-button{margin-top:8px;padding:10px 23px;border-radius:4px;color:#171b1e;background:var(--accent);font-weight:900;font-size:13px}.board-footer{width:100%;display:flex;align-items:center;gap:8px;padding-top:9px;color:var(--dim);font:600 11px 'Barlow Condensed',sans-serif;letter-spacing:1px}.live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 9px var(--accent)}.footer-line{flex:1;height:1px;background:var(--line)}
+.controls{display:flex;flex-direction:column;gap:10px;width:min(100%,380px);margin:0 auto}.controls-row{display:flex;justify-content:center;gap:10px}.control-button{min-height:49px;border-radius:5px;background:var(--panel-light);border:1px solid rgba(255,255,255,.08);box-shadow:0 5px 0 #101419;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700}.control-button:active{transform:translateY(3px);box-shadow:0 2px 0 #101419}.movement-controls .control-button{width:70px}.action-controls .control-button{flex:1;max-width:145px}.rotate-button{color:var(--accent)}.drop-button{color:var(--coral)}.arrow{width:11px;height:11px;border-top:2px solid currentColor;border-left:2px solid currentColor;display:block}.arrow-left{transform:rotate(-45deg)}.arrow-right{transform:rotate(135deg)}.arrow-down{transform:rotate(225deg)}.rotate-symbol{font:700 23px/1 'Barlow Condensed'}.drop-symbol{font-size:25px;line-height:12px}.hint{margin-top:13px;color:#69737d;text-align:center;font-size:10px;letter-spacing:.3px}@media(max-height:700px){.game-layout{margin:12px auto}.controls{gap:7px}.control-button{min-height:42px}.hint{display:none}.stat-card{padding:12px}}@media(max-width:540px){.stats-panel{width:84px;gap:10px}.stat-card{padding:11px 9px}.score-card strong{font-size:22px;letter-spacing:0}.mini-stats{flex-direction:column;gap:8px;margin-top:11px}.next-board{height:59px}.game-layout{gap:10px}.board-frame{width:min(64vw,300px)}}@media(max-width:360px){.stats-panel{width:70px}.stat-label{font-size:9px}.board-frame{width:min(63vw,252px)}.controls{width:96%}}
+</style>
 </head>
 <body>
-  <main class="shell">
-    <header>
-      <div><div class="eyebrow">Arcade / 002</div><h1>打地鼠</h1></div>
-      <p class="tagline">Nine holes.<br>One very jumpy target.<br>Stay sharp.</p>
-    </header>
-
-    <section class="game-layout">
-      <div class="stage">
-        <div class="stage-top"><span id="status" class="status">ready</span><span>field 3 × 3</span></div>
-        <div class="canvas-wrap">
-          <canvas id="game" width="480" height="480" aria-label="Whack-a-mole game board"></canvas>
-          <div id="overlay" class="overlay">
-            <div class="overlay-box"><h2 id="overlay-title">准备好了吗？</h2><p id="overlay-copy">在地鼠缩回洞里之前点击它。你有 30 秒，尽可能多地得分。</p><button id="start-btn" class="primary">开始游戏</button></div>
-          </div>
-        </div>
-        <div class="touch-controls" aria-label="Touch controls">
-          <button data-dir="up" aria-label="Up">↑</button><button data-dir="left" aria-label="Left">←</button><button data-dir="down" aria-label="Down">↓</button><button data-dir="right" aria-label="Right">→</button>
-        </div>
-      </div>
-
-      <aside class="side">
-        <div class="panel"><div class="panel-label">Current score</div><div class="score-row"><div id="score" class="score">000</div><div class="best">best<strong id="best">000</strong></div></div></div>
-        <div class="panel"><div class="panel-label">Session stats</div><div class="facts"><div class="fact"><div class="panel-label">Time</div><strong id="time">30</strong></div><div class="fact"><div class="panel-label">Hits</div><strong id="hits">00</strong></div></div></div>
-        <div class="panel actions"><button id="pause-btn" class="action">暂停</button><button id="restart-btn" class="action">重开</button></div>
-        <div class="panel controls"><div class="panel-label">Controls</div><div>鼠标或触摸点击地鼠</div><div><kbd>Space</kbd> 暂停 / 继续</div></div>
-      </aside>
-    </section>
-  </main>
-
-  <script>
-    const canvas = document.getElementById('game');
-    const ctx = canvas.getContext('2d');
-    const grid = 3;
-    const cell = canvas.width / grid;
-    let mole = -1, score = 0, hits = 0, timeLeft = 30, running = false, paused = false, timer, clock;
-    let best = Number(localStorage.getItem('neon-whack-best') || 0);
-    const $ = (id) => document.getElementById(id);
-
-    function reset() {
-      score = 0;
-      hits = 0;
-      timeLeft = 30;
-      mole = -1;
-      paused = false;
-      updateStats();
-      draw();
-    }
-    function updateStats() {
-      $('score').textContent = String(score).padStart(3, '0');
-      $('best').textContent = String(best).padStart(3, '0');
-      $('time').textContent = String(timeLeft).padStart(2, '0');
-      $('hits').textContent = String(hits).padStart(2, '0');
-    }
-    function draw() {
-      ctx.fillStyle = '#261813'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = 'rgba(245,215,110,.08)'; ctx.lineWidth = 2;
-      for (let i = 1; i < grid; i++) { ctx.beginPath(); ctx.moveTo(i * cell, 0); ctx.lineTo(i * cell, canvas.height); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i * cell); ctx.lineTo(canvas.width, i * cell); ctx.stroke(); }
-      for (let index = 0; index < 9; index++) {
-        const x = (index % grid + .5) * cell, y = (Math.floor(index / grid) + .62) * cell;
-        ctx.fillStyle = '#0d0908'; ctx.beginPath(); ctx.ellipse(x, y, cell * .31, cell * .18, 0, 0, Math.PI * 2); ctx.fill();
-        if (index === mole) {
-          const bob = Math.sin(Date.now() / 100) * 3;
-          ctx.fillStyle = '#b96947'; ctx.shadowColor = '#ff8167'; ctx.shadowBlur = 14;
-          ctx.beginPath(); ctx.arc(x, y - cell * .18 + bob, cell * .22, Math.PI, 0); ctx.lineTo(x + cell * .22, y - cell * .18 + bob); ctx.arc(x, y - cell * .18 + bob, cell * .22, 0, Math.PI); ctx.fill(); ctx.shadowBlur = 0;
-          ctx.fillStyle = '#17100d'; ctx.beginPath(); ctx.arc(x - 18, y - cell * .2 + bob, 4, 0, Math.PI * 2); ctx.arc(x + 18, y - cell * .2 + bob, 4, 0, Math.PI * 2); ctx.fill();
-        }
-      }
-    }
-    function showMole() {
-      if (!running || paused) return;
-      mole = Math.floor(Math.random() * 9);
-      draw();
-      clearTimeout(timer);
-      timer = setTimeout(showMole, Math.max(430, 850 - score * 12));
-    }
-    function start() { reset(); running = true; $('overlay').classList.add('hidden'); $('status').textContent = 'running'; $('status').classList.remove('paused'); $('pause-btn').textContent = '暂停'; showMole(); clearInterval(clock); clock = setInterval(() => { if (!paused) { timeLeft--; updateStats(); if (timeLeft <= 0) endGame(); } }, 1000); }
-    function endGame() { running = false; clearTimeout(timer); clearInterval(clock); mole = -1; draw(); $('overlay-title').textContent = '时间到！'; $('overlay-copy').textContent = `你敲中了 ${score} 只地鼠，准备再来一局吗？`; $('start-btn').textContent = '再玩一次'; $('overlay').classList.remove('hidden'); $('status').textContent = 'game over'; }
-    function togglePause() { if (!running) return; paused = !paused; $('status').textContent = paused ? 'paused' : 'running'; $('status').classList.toggle('paused', paused); $('pause-btn').textContent = paused ? '继续' : '暂停'; if (!paused) showMole(); }
-    function whack(event) { if (!running || paused || mole < 0) return; const rect = canvas.getBoundingClientRect(); const x = Math.floor((event.clientX - rect.left) / rect.width * grid); const y = Math.floor((event.clientY - rect.top) / rect.height * grid); if (y * grid + x === mole) { score++; hits++; if (score > best) { best = score; localStorage.setItem('neon-whack-best', best); } mole = -1; updateStats(); draw(); clearTimeout(timer); timer = setTimeout(showMole, 160); } }
-
-    document.addEventListener('keydown', (event) => { if (event.code === 'Space') { event.preventDefault(); togglePause(); } });
-    canvas.addEventListener('click', whack);
-    $('start-btn').addEventListener('click', start); $('restart-btn').addEventListener('click', start); $('pause-btn').addEventListener('click', togglePause);
-    reset();
-    setInterval(() => { if (running && !paused) draw(); }, 120);
-  </script>
+<main class="game-shell">
+<header class="topbar"><div class="brand-mark"><span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span><div><p class="eyebrow">BLOCK PLANET</p><h1>方块星球</h1></div></div><button class="icon-button" id="pauseButton" type="button" aria-label="暂停游戏"><span class="pause-bars"></span></button></header>
+<section class="game-layout" aria-label="俄罗斯方块游戏"><aside class="stats-panel"><div class="stat-card score-card"><span class="stat-label">得分</span><strong id="score">000000</strong><div class="score-rule"><span></span></div><div class="mini-stats"><div><span>消行</span><b id="lines">0</b></div><div><span>等级</span><b id="level">1</b></div></div></div><div class="stat-card next-card"><span class="stat-label">下一个</span><div class="next-board"><canvas id="nextCanvas" width="112" height="84"></canvas></div></div></aside><div class="board-wrap"><div class="board-frame"><canvas id="gameCanvas" width="300" height="600" aria-label="游戏棋盘"></canvas><div class="game-message" id="gameMessage" hidden><span class="message-kicker">SYSTEM PAUSED</span><strong id="messageTitle">暂停中</strong><button class="primary-button" id="messageButton" type="button">继续游戏</button></div></div><div class="board-footer"><span class="live-dot"></span><span id="statusText">准备开始</span><span class="footer-line"></span><span>10 × 20</span></div></div></section>
+<section class="controls" aria-label="游戏控制"><div class="controls-row movement-controls"><button class="control-button secondary" data-action="left" type="button" aria-label="向左移动"><span class="arrow arrow-left"></span></button><button class="control-button secondary" data-action="down" type="button" aria-label="加速下落"><span class="arrow arrow-down"></span></button><button class="control-button secondary" data-action="right" type="button" aria-label="向右移动"><span class="arrow arrow-right"></span></button></div><div class="controls-row action-controls"><button class="control-button rotate-button" data-action="rotate" type="button"><span class="rotate-symbol">↻</span><span>旋转</span></button><button class="control-button drop-button" data-action="drop" type="button"><span class="drop-symbol">⌄</span><span>落下</span></button></div></section><footer class="hint">点击旋转 · 向下滑动快速落下 · 键盘也可以操作</footer>
+</main>
+<script>
+(()=>{const canvas=document.querySelector('#gameCanvas'),nextCanvas=document.querySelector('#nextCanvas'),ctx=canvas.getContext('2d'),nextCtx=nextCanvas.getContext('2d'),scoreEl=document.querySelector('#score'),linesEl=document.querySelector('#lines'),levelEl=document.querySelector('#level'),statusEl=document.querySelector('#statusText'),message=document.querySelector('#gameMessage'),messageTitle=document.querySelector('#messageTitle'),messageButton=document.querySelector('#messageButton'),pauseButton=document.querySelector('#pauseButton');const W=10,H=20,colors={I:'#5ce1e6',J:'#5b8cff',L:'#ffad50',O:'#e7ff57',S:'#65d88a',T:'#c786ff',Z:'#ff765e'},shapes={I:[[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]],J:[[1,0,0],[1,1,1],[0,0,0]],L:[[0,0,1],[1,1,1],[0,0,0]],O:[[1,1],[1,1]],S:[[0,1,1],[1,1,0],[0,0,0]],T:[[0,1,0],[1,1,1],[0,0,0]],Z:[[1,1,0],[0,1,1],[0,0,0]]};let board,current,next,score=0,lines=0,level=1,dropCounter=0,lastTime=0,frame,paused=false,gameOver=false,touchStart;
+function newBoard(){return Array.from({length:H},()=>Array(W).fill(''))}function type(){return Object.keys(shapes)[Math.floor(Math.random()*7)]}function piece(t=type()){const m=shapes[t].map(r=>r.slice());return{type:t,matrix:m,x:Math.floor((W-m[0].length)/2),y:0}}function reset(){board=newBoard();score=0;lines=0;level=1;paused=false;gameOver=false;next=piece();current=piece();message.hidden=true;update();draw();drawNext();statusEl.textContent='游戏进行中';cancelAnimationFrame(frame);lastTime=performance.now();frame=requestAnimationFrame(loop)}function collision(p){return p.matrix.some((r,y)=>r.some((c,x)=>c&&(p.y+y>=H||p.x+x<0||p.x+x>=W||board[p.y+y]?.[p.x+x])))}function merge(){current.matrix.forEach((r,y)=>r.forEach((c,x)=>{if(c)board[current.y+y][current.x+x]=current.type}))}function rotateMatrix(m){return m[0].map((_,i)=>m.map(r=>r[i]).reverse())}function rotate(){if(paused||gameOver)return;const old=current.matrix,oldX=current.x;current.matrix=rotateMatrix(current.matrix);let o=1;while(collision(current)){current.x+=o;o=-(o+(o>0?1:-1));if(o>current.matrix[0].length){current.matrix=old;current.x=oldX;return}}draw()}function move(d){if(paused||gameOver)return;current.x+=d;if(collision(current))current.x-=d;draw()}function down(){if(paused||gameOver)return;current.y++;if(collision(current)){current.y--;lock()}dropCounter=0;draw()}function drop(){if(paused||gameOver)return;while(!collision(current))current.y++;current.y--;lock();dropCounter=0;draw()}function lock(){merge();clear();current=next;next=piece();if(collision(current))end();drawNext()}function clear(){let n=0;board=board.filter(r=>{if(r.every(Boolean)){n++;return false}return true});while(board.length<H)board.unshift(Array(W).fill(''));if(n){score+=[0,100,300,500,800][n]*level;lines+=n;level=Math.floor(lines/10)+1;update()}}function end(){gameOver=true;messageTitle.textContent='游戏结束';messageButton.textContent='再来一局';message.hidden=false;statusEl.textContent='本局结束'}function pause(){if(gameOver)return;paused=!paused;messageTitle.textContent='暂停中';messageButton.textContent='继续游戏';message.hidden=!paused;statusEl.textContent=paused?'游戏已暂停':'游戏进行中'}function update(){scoreEl.textContent=String(score).padStart(6,'0');linesEl.textContent=lines;levelEl.textContent=level}function cell(c,x,y,s,t){c.globalAlpha=1;c.fillStyle=colors[t];c.fillRect(x*s+1,y*s+1,s-2,s-2);c.fillStyle='rgba(255,255,255,.25)';c.fillRect(x*s+2,y*s+2,s-6,3);c.fillStyle='rgba(0,0,0,.18)';c.fillRect(x*s+2,y*s+s-5,s-4,3)}function draw(){const s=canvas.width/W;ctx.fillStyle='#0d1115';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.strokeStyle='rgba(255,255,255,.045)';ctx.lineWidth=1;for(let x=1;x<W;x++){ctx.beginPath();ctx.moveTo(x*s,0);ctx.lineTo(x*s,canvas.height);ctx.stroke()}for(let y=1;y<H;y++){ctx.beginPath();ctx.moveTo(0,y*s);ctx.lineTo(canvas.width,y*s);ctx.stroke()}board.forEach((r,y)=>r.forEach((t,x)=>t&&cell(ctx,x,y,s,t)));if(!gameOver)current.matrix.forEach((r,y)=>r.forEach((v,x)=>v&&cell(ctx,current.x+x,current.y+y,s,current.type)))}function drawNext(){const s=20;nextCtx.fillStyle='#14191e';nextCtx.fillRect(0,0,nextCanvas.width,nextCanvas.height);const ox=(nextCanvas.width/s-next.matrix[0].length)/2,oy=(nextCanvas.height/s-next.matrix.length)/2;next.matrix.forEach((r,y)=>r.forEach((v,x)=>v&&cell(nextCtx,ox+x,oy+y,s,next.type)))}function loop(time=0){if(gameOver)return;const delta=time-lastTime;lastTime=time;if(!paused){dropCounter+=delta;if(dropCounter>Math.max(110,720-(level-1)*60))down()}draw();frame=requestAnimationFrame(loop)}function action(a){({left:()=>move(-1),right:()=>move(1),down,rotate,drop}[a]||(()=>{}))()}
+document.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>action(b.dataset.action)));pauseButton.addEventListener('click',pause);messageButton.addEventListener('click',()=>gameOver?reset():pause());document.addEventListener('keydown',e=>{const k={ArrowLeft:'left',ArrowRight:'right',ArrowDown:'down',ArrowUp:'rotate',' ':'drop'};if(k[e.key]){e.preventDefault();action(k[e.key])}if(e.key.toLowerCase()==='p')pause()});canvas.addEventListener('touchstart',e=>{touchStart={x:e.touches[0].clientX,y:e.touches[0].clientY}},{passive:true});canvas.addEventListener('touchend',e=>{if(!touchStart)return;const t=e.changedTouches[0],dx=t.clientX-touchStart.x,dy=t.clientY-touchStart.y;touchStart=null;if(Math.max(Math.abs(dx),Math.abs(dy))<18)return action('rotate');if(Math.abs(dx)>Math.abs(dy))action(dx>0?'right':'left');else if(dy>0)action('drop');else action('rotate')},{passive:true});reset()})();
+</script>
 </body>
 </html>
