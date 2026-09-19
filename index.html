@@ -32,7 +32,7 @@ let grid,current,score=0,dropCounter=0,lastTime=0,animationFrame,gameOver=false,
 function createGrid(){return Array.from({length:rows},()=>Array(columns).fill(''))}
 function randomType(){const types=Object.keys(shapes);return types[Math.floor(Math.random()*types.length)]}
 function createPiece(type=randomType()){const matrix=shapes[type].map(row=>row.slice());return{type,matrix,x:Math.floor((columns-matrix[0].length)/2),y:0}}
-function reset(){grid=createGrid();current=createPiece();score=0;gameOver=false;scoreElement.value='0';scoreElement.textContent='0';clearTimeout(hintTimer);startHint.classList.remove('is-hidden');hintTimer=setTimeout(()=>startHint.classList.add('is-hidden'),500);cancelAnimationFrame(animationFrame);lastTime=performance.now();animationFrame=requestAnimationFrame(loop);draw()}
+function reset(){grid=createGrid();current=createPiece();score=0;gameOver=false;scoreElement.value='0';scoreElement.textContent='0';clearTimeout(hintTimer);startHint.classList.remove('is-hidden');hintTimer=setTimeout(()=>startHint.classList.add('is-hidden'),1000);cancelAnimationFrame(animationFrame);lastTime=performance.now();animationFrame=requestAnimationFrame(loop);draw()}
 function collides(piece){return piece.matrix.some((row,y)=>row.some((cell,x)=>cell&&(piece.y+y>=rows||piece.x+x<0||piece.x+x>=columns||grid[piece.y+y]?.[piece.x+x])))}
 function merge(){current.matrix.forEach((row,y)=>row.forEach((cell,x)=>{if(cell)grid[current.y+y][current.x+x]=current.type}))}
 function rotateMatrix(matrix){return matrix[0].map((_,index)=>matrix.map(row=>row[index]).reverse())}
